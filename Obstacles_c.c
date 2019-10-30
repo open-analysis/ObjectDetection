@@ -1,4 +1,4 @@
-// File:			Obstacles_c.cpp
+// File:			RoboVision.cpp
 // Date:			10/29/19
 // Description:		Program will allow an e-puck robot to "see" its environment to guide itself through it (eg navigating a cave or tunnel).
 // Author:			Josh Chica
@@ -17,7 +17,8 @@
 void checkSpeed(double *, double *);
 
 // global variables
-const double MIN_DIST = 90.0;
+const double MIN_DIST = 100.0;
+const double SPD_MULT = 0.75;
 
 
 // MAIN
@@ -76,16 +77,24 @@ int main(int argc, char **argv) {
         // checks to see if the left side is open to move
         if (left_obstacle){
           printf("Gonna go left\n");
-          leftSpeed += 0.5 * MAX_SPEED;
-          rightSpeed -= 0.5 * MAX_SPEED;
+          leftSpeed += (SPD_MULT * MAX_SPEED);
+          rightSpeed -= (SPD_MULT * MAX_SPEED);
+        } else if (right_obstacle){
+          printf("Gonna go right\n");
+          leftSpeed -= (SPD_MULT * MAX_SPEED);
+          rightSpeed += (SPD_MULT * MAX_SPEED);
         }
        // determines if it's closer to the left side
       } else if (psValues[0] < psValues[7]){
         // checks to see if the right side is open to move
         if (right_obstacle){
           printf("Gonna go right\n");
-          leftSpeed -= 0.5 * MAX_SPEED;
-          rightSpeed += 0.5 * MAX_SPEED;
+          leftSpeed -= (SPD_MULT * MAX_SPEED);
+          rightSpeed += (SPD_MULT * MAX_SPEED);
+        } else if (left_obstacle){
+          printf("Gonna go left\n");
+          leftSpeed += (SPD_MULT * MAX_SPEED);
+          rightSpeed -= (SPD_MULT * MAX_SPEED);
         }
       }
       // if it's perfectly infront of the epuck checks left then right, otherwise quits
@@ -93,17 +102,20 @@ int main(int argc, char **argv) {
         
         if (left_obstacle){
           printf("Gonna go left\n");
-          leftSpeed += 0.5 * MAX_SPEED;
-          rightSpeed -= 0.5 * MAX_SPEED;
+          leftSpeed += (SPD_MULT * MAX_SPEED);
+          rightSpeed -= (SPD_MULT * MAX_SPEED);
         }
         else if (right_obstacle){
           printf("Gonna go right\n");
-          leftSpeed -= 0.5 * MAX_SPEED;
-          rightSpeed += 0.5 * MAX_SPEED;
+          leftSpeed -= (SPD_MULT * MAX_SPEED);
+          rightSpeed += (SPD_MULT * MAX_SPEED);
         }
         else
           break;
       }
+    } else{
+      leftSpeed = 0.5 * MAX_SPEED;
+      rightSpeed = 0.5 * MAX_SPEED;
     }
 
     // making sure the velocities set aren't higher than the max
