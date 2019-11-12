@@ -1,4 +1,4 @@
-// File:			RoboVision.cpp
+// File:			Obstacles_c.c
 // Date:			10/29/19
 // Description:		Program will allow an e-puck robot to "see" its environment to guide itself through it (eg navigating a cave or tunnel).
 // Author:			Josh Chica
@@ -19,6 +19,7 @@ void checkSpeed(double *, double *);
 // global variables
 const double MIN_DIST = 100.0;
 const double SPD_MULT = 0.75;
+int run = 0;
 
 
 // MAIN
@@ -32,8 +33,8 @@ int main(int argc, char **argv) {
   // init'ing sensors
   WbDeviceTag ps[8];
   char psNames[8][4] = { "ps0", "ps1", "ps2", "ps3", "ps4", "ps5", "ps6", "ps7" };
-  
-  for (int i = 0; i < 8; i++) {
+  int i;
+  for (i = 0; i < 8; i++) {
     ps[i] = wb_robot_get_device(psNames[i]);
     wb_distance_sensor_enable(ps[i], 1);
   }
@@ -59,54 +60,54 @@ int main(int argc, char **argv) {
 
     // Read the sensors:
     double psValues[8];
-    for (int i = 0; i < 8; i++)
+    int i;
+    for (i = 0; i < 8; i++){
       psValues[i] = wb_distance_sensor_get_value(ps[i]);
+    }
 
     // Process sensor data here:
-  
-    bool front_obstacle = (psValues[0] > MIN_DIST || psValues[7] > MIN_DIST);
-    bool left_obstacle = (psValues[4] < MIN_DIST || psValues[5] < MIN_DIST || psValues[6] < MIN_DIST);
-    bool right_obstacle = (psValues[1] < MIN_DIST || psValues[2] < MIN_DIST || psValues[3] < MIN_DIST);
+    bool front_obstacle = 
+        psValues[0] > MIN_DIST || psValues[7] > MIN_DIST;
 
-    printf("Front Sensors: %.3f, %.3f\n", psValues[0], psValues[7]);    
+    bool left_obstacle = 
+        psValues[7] > MIN_DIST || psValues[4] > MIN_DIST || psValues[5] > MIN_DIST || psValues[6] > MIN_DIST;
+        
+    bool right_obstacle = 
+          psValues[0] > MIN_DIST || psValues[1] > MIN_DIST || psValues[2] > MIN_DIST || psValues[3] > MIN_DIST;
+
+
+    printf("Front Sensors: %.3f, %.3f\n", psValues[7], psValues[0]);    
     // determines if there's something in front of the epuck
     if (front_obstacle){
       printf("Something's infront of me\n");
-      // determines if it's closer to the right side
+      run = 1;
+      // determines if it's closer to the left side
       if (psValues[0] > psValues[7]){
         // checks to see if the left side is open to move
-        if (left_obstacle){
-          printf("Gonna go left\n");
-          leftSpeed += (SPD_MULT * MAX_SPEED);
-          rightSpeed -= (SPD_MULT * MAX_SPEED);
-        } else if (right_obstacle){
-          printf("Gonna go right\n");
-          leftSpeed -= (SPD_MULT * MAX_SPEED);
-          rightSpeed += (SPD_MULT * MAX_SPEED);
-        }
-       // determines if it's closer to the left side
+        printf("Gonna go right\n");
+        printf("1\n\n");
+        leftSpeed += (SPD_MULT * MAX_SPEED);
+        rightSpeed -= (SPD_MULT * MAX_SPEED);
+       // determines if it's closer to the right side
       } else if (psValues[0] < psValues[7]){
         // checks to see if the right side is open to move
-        if (right_obstacle){
-          printf("Gonna go right\n");
-          leftSpeed -= (SPD_MULT * MAX_SPEED);
-          rightSpeed += (SPD_MULT * MAX_SPEED);
-        } else if (left_obstacle){
-          printf("Gonna go left\n");
-          leftSpeed += (SPD_MULT * MAX_SPEED);
-          rightSpeed -= (SPD_MULT * MAX_SPEED);
-        }
+        printf("Gonna go left\n");
+        printf("3\n\n");
+        leftSpeed -= (SPD_MULT * MAX_SPEED);
+        rightSpeed += (SPD_MULT * MAX_SPEED);
       }
       // if it's perfectly infront of the epuck checks left then right, otherwise quits
       else{
         
         if (left_obstacle){
-          printf("Gonna go left\n");
+          printf("Gonna go right\n");
+          printf("5\n\n");
           leftSpeed += (SPD_MULT * MAX_SPEED);
           rightSpeed -= (SPD_MULT * MAX_SPEED);
         }
         else if (right_obstacle){
-          printf("Gonna go right\n");
+          printf("Gonna go left\n");
+          printf("6\n\n");
           leftSpeed -= (SPD_MULT * MAX_SPEED);
           rightSpeed += (SPD_MULT * MAX_SPEED);
         }
@@ -114,16 +115,22 @@ int main(int argc, char **argv) {
           break;
       }
     } else{
-      leftSpeed = 0.5 * MAX_SPEED;
-      rightSpeed = 0.5 * MAX_SPEED;
+      // so that it goes through one more time to turn a little bit further
+      if (run){
+        run = 0;
+      }
+      else {
+        leftSpeed= 0.5 * MAX_SPEED;
+        rightSpeed= 0.5 * MAX_SPEED;
+      }
     }
 
     // making sure the velocities set aren't higher than the max
     double *left = &leftSpeed;
     double *right = &rightSpeed;
-    printf("Before: %f, %f\t", leftSpeed, rightSpeed);
+    //printf("Before: %f, %f\t", leftSpeed, rightSpeed);
     checkSpeed(left, right);    
-    printf("After: %f, %f\n", leftSpeed, rightSpeed);
+    //printf("After: %f, %f\n", leftSpeed, rightSpeed);
     
     // Actuator commands:
       
