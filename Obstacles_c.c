@@ -92,7 +92,7 @@ int main(int argc, char **argv) {
       } else if (psValues[0] < psValues[7]){
         // checks to see if the right side is open to move
         printf("Gonna go left\n");
-        printf("3\n\n");
+        printf("2\n\n");
         leftSpeed -= (SPD_MULT * MAX_SPEED);
         rightSpeed += (SPD_MULT * MAX_SPEED);
       }
@@ -101,13 +101,13 @@ int main(int argc, char **argv) {
         
         if (left_obstacle){
           printf("Gonna go right\n");
-          printf("5\n\n");
+          printf("3\n\n");
           leftSpeed += (SPD_MULT * MAX_SPEED);
           rightSpeed -= (SPD_MULT * MAX_SPEED);
         }
         else if (right_obstacle){
           printf("Gonna go left\n");
-          printf("6\n\n");
+          printf("4\n\n");
           leftSpeed -= (SPD_MULT * MAX_SPEED);
           rightSpeed += (SPD_MULT * MAX_SPEED);
         }
